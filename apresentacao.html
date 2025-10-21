@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apresentação de Geocaching</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;family=Work+Sans:wght@400;600&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide {
+            width: 1280px;
+            height: 720px;
+            display: none;
+            position: relative;
+            background-color: #f8f9fa;
+            overflow: hidden;
+            transform-origin: center center;
+            flex-shrink: 0;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .nav-button {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 24px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .nav-button.prev {
+            left: 20px;
+        }
+
+        .nav-button.next {
+            right: 20px;
+        }
+
+        /* Estilos genéricos dos slides */
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            position: relative;
+            background-color: #f8f9fa;
+            overflow: hidden;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .title-bar {
+            background-color: #2d74b9;
+            padding: 16px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title {
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .title-decoration {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 380px;
+            background-color: rgba(76, 175, 80, 0.25);
+            clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        .content-box {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .highlight-text {
+            color: #2d74b9;
+            font-weight: 600;
+        }
+
+        .icon-circle {
+            background-color: #4CAF50;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .footer-decoration {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 12px;
+            width: 100%;
+            background-color: #f3d02e;
+        }
+
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos Slide 1 */
+        .bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .slide1-title {
+            font-family: 'Montserrat', sans-serif;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .subtitle {
+            font-family: 'Work Sans', sans-serif;
+            color: #f3d02e;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        .compass-icon {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 120px;
+            height: 120px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .gps-indicator {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border: 3px solid #2d74b9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gps-dot {
+            width: 24px;
+            height: 24px;
+            background-color: #2d74b9;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #2d74b9;
+        }
+
+        /* Estilos Slide 5 */
+        .step-number {
+            background-color: #f3d02e;
+            color: #333;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .coordinate-box {
+            font-family: monospace;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .phone-mockup {
+            border: 8px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos Slide 6 */
+        .cache-card {
+            transition: transform 0.2s;
+        }
+
+        .cache-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cache-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Estilos Slide 7 */
+        .check-circle {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .x-circle {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .item-row {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Estilos Slide 8 */
+        .travel-bug-tag {
+            border: 2px solid #f3d02e;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            background-color: #fff;
+        }
+
+        /* Estilos Slide 9 */
+        .map-container {
+            height: 280px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .checklist-item {
+            border-left: 4px solid #4CAF50;
+            padding-left: 12px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .checklist-item.traditional {
+            border-left: 4px solid #2d74b9;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Estilos Slide 10 */
+        .field-box {
+            background-color: #f5f8fd;
+            border-left: 4px solid #2d74b9;
+        }
+
+        /* Estilos Slide 11 */
+        .verse-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .comparison-box {
+            position: relative;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            color: white;
+        }
+
+        .earth-treasure {
+            background-color: #2d74b9;
+        }
+
+        .heaven-treasure {
+            background-color: #4CAF50;
+        }
+
+        /* Estilos Slide 12 */
+        .safety-item {
+            transition: transform 0.2s;
+        }
+
+        .safety-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .safety-icon {
+            background-color: #e74c3c;
+            color: white;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px auto;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+
+        /* Estilos Slide 13 */
+        .step-card {
+            transition: transform 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Estilos Slide 14 */
+        .contact-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .achievement-badge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #f3d02e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .compass-decoration {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            opacity: 0.6;
+            transform: rotate(30deg);
+        }
+
+        .map-background {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 35%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="presentation-container">
+
+        <div id="slide1" class="slide active">
+            <div class="slide-container">
+                <div
+                    style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://page.gensparksite.com/slides_images/56830cd49ce81f73fe0192619f631c17.jpg"); background-size: cover; background-position: center;'>
+                </div>
+                <div class="bg-overlay"></div>
+                <div class="absolute inset-0 flex flex-col justify-center items-center px-16">
+                    <div class="text-center">
+                        <h1 class="slide1-title text-6xl font-bold mb-6">Geocaching</h1>
+                        <h2 class="slide1-title text-5xl font-semibold mb-10">Especialidade Desbravadores</h2>
+                        <p class="subtitle text-3xl font-medium mb-4">Explore o mundo, descubra tesouros, conecte-se à
+                            natureza!</p>
+                        <p class="text-white text-xl font-light mt-8"> <i class="fas fa-map-marker-alt mr-2"
+                                style="color: #f3d02e;"></i> Uma aventura mundial de caça ao tesouro usando GPS </p>
+                    </div>
+                </div>
+                <div class="gps-indicator">
+                    <div class="gps-dot"></div>
+                </div> <i class="fas fa-compass compass-icon"></i>
+                <div
+                    style="position: absolute; bottom: 0; left: 0; width: 280px; height: 140px; background-color: rgba(76, 175, 80, 0.6); clip-path: polygon(0 60%, 100% 0, 100% 100%, 0% 100%);">
+                </div>
+                <div style="position: absolute; bottom: 30px; left: 40px;">
+                    <p class="text-white text-lg font-mono">N 45° 17.460 W 122° 24.800</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide2" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">O que é Geocaching?</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4 flex flex-col">
+                        <div class="content-box p-4 mb-3">
+                            <p class="text-base mb-2"> <span class="highlight-text text-xl">Geocaching</span> é um
+                                passatempo de ar livre que utiliza GPS para encontrar recipientes escondidos, chamados
+                                "caches". </p>
+                            <p class="text-base mb-2"> Uma cache típica é uma pequena caixa à prova de água, com um
+                                livro de registro (<span class="highlight-text">logbook</span>) e alguns objetos para
+                                troca. </p>
+                            <p class="text-base"> Existem milhões de geocaches no mundo, criando uma grande caça ao
+                                tesouro global! </p>
+                        </div>
+                        <div class="flex space-x-4 mb-3">
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3" style="width: 40px; height: 40px;"><i
+                                        class="fas fa-compass"></i></div>
+                                <p class="text-sm"> Aventura ao ar livre em qualquer lugar </p>
+                            </div>
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3"
+                                    style="background-color: #2d74b9; width: 40px; height: 40px;"><i
+                                        class="fas fa-globe-americas"></i></div>
+                                <p class="text-sm"> Comunidade global de exploração </p>
+                            </div>
+                        </div>
+                        <div class="content-box p-3 mt-auto">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Como funciona:</h3>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">1</span></div>
+                                <p class="text-sm">Encontre as coordenadas GPS de um cache online</p>
+                            </div>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">2</span></div>
+                                <p class="text-sm">Use seu GPS para navegar até o local indicado</p>
+                            </div>
+                            <div class="flex items-start">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">3</span></div>
+                                <p class="text-sm">Encontre o cache, assine o logbook e registre online!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col h-full">
+                        <div class="image-container flex-1">
+                            <img alt="Diversos tipos de geocaches" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/56830cd49ce81f73fe0192619f631c17.jpg" />
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-1">
+                                <p class="text-center text-xs">Diversos tipos de recipientes usados como geocaches</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center">
+                    <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">N 45° 17.460 W 122° 24.800</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide3" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">O que é um Receptor GPS?</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4 flex flex-col">
+                        <div class="content-box p-4 mb-3">
+                            <p class="text-base mb-2"> <span class="highlight-text text-xl">Um receptor GPS</span> é
+                                qualquer dispositivo que recebe sinais de satélites para determinar sua localização na
+                                Terra. </p>
+                            <p class="text-base mb-2"> Ele calcula sua posição ao receber sinais de pelo menos 4
+                                satélites. </p>
+                            <p class="text-base"> Seu <span class="highlight-text">smartphone</span> possui um receptor
+                                GPS integrado. A bolinha azul no Google Maps é a sua localização GPS. </p>
+                        </div>
+                        <div class="flex space-x-4 mb-3">
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3" style="width: 40px; height: 40px;"><i
+                                        class="fas fa-satellite"></i></div>
+                                <p class="text-sm"> Recebe sinais de múltiplos satélites </p>
+                            </div>
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3"
+                                    style="background-color: #2d74b9; width: 40px; height: 40px;"><i
+                                        class="fas fa-mobile-alt"></i></div>
+                                <p class="text-sm"> Presente em smartphones e dedicados </p>
+                            </div>
+                        </div>
+                        <div class="content-box p-3 mt-auto">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Como funciona:</h3>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">1</span></div>
+                                <p class="text-sm">Recebe sinais de pelo menos quatro satélites</p>
+                            </div>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">2</span></div>
+                                <p class="text-sm">Calcula sua posição baseado no tempo dos sinais</p>
+                            </div>
+                            <div class="flex items-start">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">3</span></div>
+                                <p class="text-sm">Exibe sua localização exata em um mapa</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col h-full">
+                        <div class="image-container flex-1">
+                            <img alt="Dispositivos GPS e smartphones com navegação" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/8bb7be2bdf0b981144314f4d87aeda56.jpg" />
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-1">
+                                <p class="text-center text-xs">Dispositivos GPS e smartphones com navegação</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center">
+                    <i class="fas fa-satellite-dish text-blue-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">GPS · GLONASS · GALILEO · BEIDOU</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide4" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Como descobrir localização dos caches</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4">
+                        <div class="content-box p-4 mb-3">
+                            <p class="text-lg mb-2"> <span class="highlight-text text-xl">Duas maneiras
+                                    principais</span> para encontrar a localização de geocaches no site oficial: </p>
+                            <div class="mb-3">
+                                <h3 class="font-bold text-lg mb-1" style="color: #4CAF50;">1. Pesquisar pelo mapa</h3>
+                                <p class="text-base mb-1"> Acesse geocaching.com e navegue pelo mapa interativo: </p>
+                                <ul class="list-disc ml-6 mb-2 text-sm">
+                                    <li>Insira sua cidade ou endereço na busca</li>
+                                    <li>Visualize caches próximos no mapa</li>
+                                    <li>Clique nos ícones para ver detalhes</li>
+                                </ul>
+                                <p class="text-xs text-gray-600 italic"> <i
+                                        class="fas fa-lightbulb text-yellow-500 mr-1"></i> Dica: Use filtros para
+                                    refinar sua busca por tipo ou dificuldade </p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1" style="color: #2d74b9;">2. Buscar por código ou nome
+                                </h3>
+                                <p class="text-base mb-1"> Quando você já souber o código ou nome do cache: </p>
+                                <ul class="list-disc ml-6 text-sm">
+                                    <li>Digite o código GC (ex: GC12345) na busca</li>
+                                    <li>Busque pelo nome do local ou ponto de interesse</li>
+                                    <li>Pesquise caches compartilhados por outros usuários</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="flex space-x-4">
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3" style="width: 40px; height: 40px;"><i
+                                        class="fas fa-map-marked-alt"></i></div>
+                                <p class="text-sm"> Ideal para exploração de áreas novas </p>
+                            </div>
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3"
+                                    style="background-color: #2d74b9; width: 40px; height: 40px;"><i
+                                        class="fas fa-search-location"></i></div>
+                                <p class="text-sm"> Perfeito para caches específicos </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col justify-around">
+                        <div class="method-box">
+                            <div class="method-header" style="padding: 8px 15px;"> <i class="fas fa-map fa-lg mr-2"></i>
+                                <p>Método 1: Pesquisar pelo Mapa</p>
+                            </div>
+                            <div class="p-2 bg-gray-100">
+                                <div class="image-container">
+                                    <div class="bg-white p-3 border border-gray-300">
+                                        <div class="bg-blue-100 p-1 mb-2 rounded">
+                                            <p class="text-center text-xs font-mono">www.geocaching.com/play</p>
+                                        </div>
+                                        <div class="bg-gray-200 h-28 flex items-center justify-center mb-2 relative">
+                                            <p class="text-xs text-gray-500">Mapa interativo com marcações de cache</p>
+                                            <div class="absolute top-2 left-2 bg-white px-2 py-1 rounded shadow-sm"><i
+                                                    class="fas fa-search text-gray-700 text-xs"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="method-box">
+                            <div class="method-header" style="background-color: #2d74b9; padding: 8px 15px;"> <i
+                                    class="fas fa-search fa-lg mr-2"></i>
+                                <p>Método 2: Buscar por Código/Nome</p>
+                            </div>
+                            <div class="p-2 bg-gray-100">
+                                <div class="image-container">
+                                    <div class="bg-white p-3 border border-gray-300">
+                                        <div class="bg-blue-100 p-1 mb-2 rounded">
+                                            <p class="text-center text-xs font-mono">www.geocaching.com/search</p>
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="border border-gray-300 rounded overflow-hidden flex">
+                                                <div class="bg-gray-100 p-2 flex items-center justify-center"><i
+                                                        class="fas fa-search text-gray-600"></i></div>
+                                                <div class="flex-grow p-1">
+                                                    <p class="text-xs text-gray-500">GC12345 ou "Nome"</p>
+                                                </div>
+                                                <div
+                                                    class="bg-green-500 p-2 text-white flex items-center justify-center">
+                                                    <p class="text-xs">Buscar</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="border border-gray-300 p-2 rounded">
+                                            <div class="flex items-center mb-1">
+                                                <div
+                                                    class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                                                    <i class="fas fa-box text-green-600 text-xs"></i></div>
+                                                <div>
+                                                    <p class="text-xs font-semibold">Tesouro da Montanha</p>
+                                                    <p class="text-xs text-gray-500">GC12345 • Tradicional</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 left-6 flex items-center"> <i
+                        class="fas fa-info-circle text-blue-600 mr-2"></i>
+                    <p class="text-sm text-gray-600">Acesse: geocaching.com</p>
+                </div>
+                <div class="absolute bottom-4 right-6 flex items-center"> <i
+                        class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">S 23° 32.153 W 46° 37.582</p>
+                </div>
+            </div>
+        </div>
+        <div id="slide5" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Como inserir coordenadas no GPS</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4">
+                        <div class="content-box p-4 mb-3">
+                            <p class="text-base mb-2"> Para usar coordenadas de <span class="highlight-text">latitude e
+                                    longitude</span>, insira os números em um aplicativo de mapa no seu celular. </p>
+                            <div class="coordinate-box mb-2">
+                                <p><i class="fas fa-map-marker-alt text-red-600 mr-2"></i> -22.54321, -47.23456</p>
+                            </div>
+                            <p class="text-sm"> O primeiro número é a <span class="highlight-text">latitude</span>
+                                (norte/sul) e o segundo é a <span class="highlight-text">longitude</span> (leste/oeste).
+                            </p>
+                        </div>
+                        <div class="content-box p-4">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Passo a passo:</h3>
+                            <div class="flex items-start mb-2">
+                                <div class="step-number" style="width: 30px; height: 30px;">1</div>
+                                <div>
+                                    <p class="font-semibold text-base">Copie as coordenadas do site</p>
+                                    <p class="text-xs text-gray-700">Ex: -22.54321, -47.23456</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start mb-2">
+                                <div class="step-number" style="width: 30px; height: 30px;">2</div>
+                                <div>
+                                    <p class="font-semibold text-base">Abra o Google Maps</p>
+                                    <p class="text-xs text-gray-700">Toque na barra de pesquisa</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start mb-2">
+                                <div class="step-number" style="width: 30px; height: 30px;">3</div>
+                                <div>
+                                    <p class="font-semibold text-base">Cole as coordenadas e busque</p>
+                                    <p class="text-xs text-gray-700">O mapa mostrará o local com um pino</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="step-number" style="width: 30px; height: 30px;">4</div>
+                                <div>
+                                    <p class="font-semibold text-base">Siga as direções até o ponto</p>
+                                    <p class="text-xs text-gray-700">Observe a distância diminuir</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col">
+                        <div class="phone-mockup mb-3 flex-grow">
+                            <div class="bg-blue-900 text-white text-xs p-1 flex justify-between items-center">
+                                <p class="ml-2">Google Maps</p>
+                                <div class="flex items-center"> <i class="fas fa-wifi mr-1"></i> <i
+                                        class="fas fa-battery-three-quarters"></i> </div>
+                            </div>
+                            <div class="relative h-full bg-green-100">
+                                <div
+                                    class="absolute top-0 left-0 right-0 p-2 bg-white rounded-lg m-2 shadow flex items-center">
+                                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                                    <p class="text-gray-600 text-sm">-22.54321, -47.23456</p>
+                                </div>
+                                <div class="absolute" style="top: 45%; left: 45%;"> <i
+                                        class="fas fa-map-marker-alt text-red-600 text-3xl"></i> </div>
+                                <div class="absolute bottom-0 left-0 right-0 h-24 flex justify-center">
+                                    <div class="bg-white rounded-t-lg shadow-lg w-11/12 p-2">
+                                        <p class="font-semibold text-sm">-22.54321, -47.23456</p>
+                                        <div class="flex space-x-2 mt-1">
+                                            <div
+                                                class="bg-blue-500 text-white py-1 px-3 rounded-full text-xs flex items-center">
+                                                <i class="fas fa-directions mr-1"></i>
+                                                <p>Navegar</p>
+                                            </div>
+                                            <div class="bg-gray-200 py-1 px-3 rounded-full text-xs flex items-center"><i
+                                                    class="fas fa-share-alt mr-1"></i>
+                                                <p>Compartilhar</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-box p-3">
+                            <h3 class="font-semibold text-lg mb-1 text-center" style="color: #2d74b9;">Dicas úteis</h3>
+                            <p class="text-sm mb-1"><i class="fas fa-lightbulb text-yellow-500"></i> As coordenadas
+                                podem aparecer em formatos diferentes. Ambos funcionam:</p>
+                            <div class="flex justify-around mb-1">
+                                <div class="bg-gray-100 p-1 rounded">
+                                    <p class="text-xs font-mono">-22.54321, -47.23456</p>
+                                </div>
+                                <div class="bg-gray-100 p-1 rounded">
+                                    <p class="text-xs font-mono">S 22° 32.593' W 47° 14.074'</p>
+                                </div>
+                            </div>
+                            <p class="text-sm"><i class="fas fa-mobile-alt text-gray-700"></i> Mantenha a tela do
+                                celular ligada durante a busca.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center"> <i
+                        class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">S 22° 32.593' W 47° 14.074'</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide6" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Termos essenciais do Geocaching</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="p-8 flex items-stretch justify-center space-x-4 h-[calc(100%-90px)]">
+
+                    <div class="w-1/5 content-box cache-card flex flex-col p-2">
+                        <div class="image-container h-48 mb-2">
+                            <img alt="Cache Tradicional" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/f95de1853030191430e230e15cc92706.jpg">
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <div class="cache-icon" style="background-color: #4CAF50;"><i
+                                    class="fas fa-box-open text-white text-xl"></i></div>
+                            <h3 class="text-lg font-semibold highlight-text">Tradicional</h3>
+                        </div>
+                        <p class="text-sm flex-grow">O tipo mais comum. Um recipiente físico com um logbook no local
+                            exato das coordenadas.</p>
+                    </div>
+
+                    <div class="w-1/5 content-box cache-card flex flex-col p-2">
+                        <div class="image-container h-48 mb-2">
+                            <img alt="Micro-cache" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/e3cf9db4ea944fa46833427357066578.jpg">
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <div class="cache-icon" style="background-color: #2d74b9;"><i
+                                    class="fas fa-vial text-white text-xl"></i></div>
+                            <h3 class="text-lg font-semibold highlight-text">Micro</h3>
+                        </div>
+                        <p class="text-sm flex-grow">Recipiente muito pequeno, geralmente cabendo apenas o logbook.
+                            Exige observação atenta.</p>
+                    </div>
+
+                    <div class="w-1/5 content-box cache-card flex flex-col p-2">
+                        <div class="image-container h-48 mb-2">
+                            <img alt="Cache Virtual" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/c9640d460d1e016300b4cd8c7fd496c1.jpg">
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <div class="cache-icon" style="background-color: #f3d02e;"><i
+                                    class="fas fa-camera text-white text-xl"></i></div>
+                            <h3 class="text-lg font-semibold highlight-text">Virtual</h3>
+                        </div>
+                        <p class="text-sm flex-grow">Sem recipiente. A prova da visita é uma foto ou resposta a um
+                            desafio sobre o local.</p>
+                    </div>
+
+                    <div class="w-1/5 content-box cache-card flex flex-col p-2">
+                        <div class="image-container h-48 mb-2">
+                            <img alt="Multi-cache" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/0a5b60d534d3bc71b89b00708ff35f60.gif">
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <div class="cache-icon" style="background-color: #9C27B0;"><i
+                                    class="fas fa-route text-white text-xl"></i></div>
+                            <h3 class="text-lg font-semibold highlight-text">Multi-cache</h3>
+                        </div>
+                        <p class="text-sm flex-grow">Envolve visitar vários pontos para coletar pistas que levam ao
+                            cache final.</p>
+                    </div>
+
+                    <div class="w-1/5 content-box cache-card flex flex-col p-2">
+                        <div class="image-container h-48 mb-2">
+                            <img alt="Travel Bug" class="w-full h-full object-cover"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Geocaching_Travel_Bug_Dog_Tag.jpg/1024px-Geocaching_Travel_Bug_Dog_Tag.jpg">
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <div class="cache-icon" style="background-color: #FF5722;"><i
+                                    class="fas fa-tag text-white text-xl"></i></div>
+                            <h3 class="text-lg font-semibold highlight-text">Travel Bug</h3>
+                        </div>
+                        <p class="text-sm flex-grow">Item rastreável que viaja de cache em cache, com seu percurso
+                            registrado online.</p>
+                    </div>
+
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center">
+                    <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">N 45° 17.460 W 122° 24.800</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide7" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">O que pode ou não pode ficar em um cache?</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-8 h-full">
+                    <div class="w-1/2 pr-4">
+                        <div class="content-box p-4 h-full">
+                            <div class="flex items-center justify-center mb-3 bg-green-100 py-2 rounded-lg">
+                                <div class="icon-circle check-circle mr-3" style="width: 40px; height: 40px;"><i
+                                        class="fas fa-check"></i></div>
+                                <h2 class="text-2xl font-semibold text-green-700">Itens Permitidos</h2>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle check-circle mr-4 flex-shrink-0"
+                                    style="width: 40px; height: 40px;"><i class="fas fa-pen"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Canetas e lápis</span> - para assinar o
+                                    logbook</p>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle check-circle mr-4 flex-shrink-0"
+                                    style="width: 40px; height: 40px;"><i class="fas fa-gamepad"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Brinquedos pequenos</span> - limpos e em
+                                    bom estado</p>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle check-circle mr-4 flex-shrink-0"
+                                    style="width: 40px; height: 40px;"><i class="fas fa-id-badge"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Pins e bottons</span> - itens
+                                    colecionáveis</p>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle check-circle mr-4 flex-shrink-0"
+                                    style="width: 40px; height: 40px;"><i class="fas fa-coins"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Moedas</span> - em saquinhos para
+                                    proteção</p>
+                            </div>
+                            <div class="py-2 flex items-center">
+                                <div class="icon-circle check-circle mr-4 flex-shrink-0"
+                                    style="width: 40px; height: 40px;"><i class="fas fa-sticky-note"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Figurinhas e adesivos</span> - itens
+                                    populares</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4">
+                        <div class="content-box p-4 h-full">
+                            <div class="flex items-center justify-center mb-3 bg-red-100 py-2 rounded-lg">
+                                <div class="icon-circle x-circle mr-3" style="width: 40px; height: 40px;"><i
+                                        class="fas fa-times"></i></div>
+                                <h2 class="text-2xl font-semibold text-red-700">Itens Proibidos</h2>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle x-circle mr-4 flex-shrink-0" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-drumstick-bite"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Alimentos</span> - estragam e atraem
+                                    animais</p>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle x-circle mr-4 flex-shrink-0" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-cut"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Objetos cortantes</span> - facas ou
+                                    tesouras</p>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle x-circle mr-4 flex-shrink-0" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-wine-bottle"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Álcool e drogas</span> - itens ilegais
+                                </p>
+                            </div>
+                            <div class="item-row py-2 flex items-center">
+                                <div class="icon-circle x-circle mr-4 flex-shrink-0" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-fire"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Isqueiros e fósforos</span> - risco de
+                                    incêndio</p>
+                            </div>
+                            <div class="py-2 flex items-center">
+                                <div class="icon-circle x-circle mr-4 flex-shrink-0" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-bomb"></i></div>
+                                <p class="text-lg"><span class="highlight-text">Explosivos ou munições</span> -
+                                    perigosos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-yellow-100 rounded-lg px-6 py-2 border-2 border-yellow-300">
+                    <p class="text-center text-lg"><i class="fas fa-lightbulb text-yellow-600 mr-2"></i>Lembre-se: <span
+                            class="font-semibold">CITO</span> - Cache In, Trash Out! Deixe o local mais limpo do que
+                        encontrou.</p>
+                </div>
+                <div class="footer-decoration"></div>
+            </div>
+        </div>
+
+        <div id="slide8" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Regras de etiqueta dos Travel Bugs</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4 flex flex-col">
+                        <div class="content-box p-3 mb-3">
+                            <p class="text-base mb-2"> <span class="highlight-text text-xl">Travel Bugs</span> são itens
+                                rastreáveis que viajam de cache em cache, com seu percurso registrado online por um
+                                código único. </p>
+                            <p class="text-base"> Cada um possui um <span class="highlight-text">objetivo definido pelo
+                                    dono</span>. Ao encontrar um, siga as regras de etiqueta. </p>
+                        </div>
+                        <div class="content-box p-3 mb-3">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Regras essenciais:</h3>
+                            <div class="flex items-start mb-2"> <i
+                                    class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                                <p class="text-sm"> Pegue o Travel Bug <span class="highlight-text">apenas se puder
+                                        movê-lo em breve</span> </p>
+                            </div>
+                            <div class="flex items-start mb-2"> <i
+                                    class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                                <p class="text-sm"> <span class="highlight-text">Sempre registre</span> o movimento no
+                                    site </p>
+                            </div>
+                            <div class="flex items-start"> <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                                <p class="text-sm"> Ajude a cumprir o <span class="highlight-text">objetivo do Travel
+                                        Bug</span> </p>
+                            </div>
+                        </div>
+                        <div class="content-box p-3 mt-auto">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #2d74b9;">Como registrar:</h3>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">1</span></div>
+                                <p class="text-sm">Acesse geocaching.com e vá para a seção "Track"</p>
+                            </div>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">2</span></div>
+                                <p class="text-sm">Digite o código do Travel Bug (impresso na tag)</p>
+                            </div>
+                            <div class="flex items-start">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">3</span></div>
+                                <p class="text-sm">Registre a retirada e a colocação no novo cache</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col h-full">
+                        <div class="image-container flex-1">
+                            <img alt="Travel Bug preso a um objeto" class="w-full h-full object-cover"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Geocaching_Travel_Bug_Dog_Tag.jpg/1024px-Geocaching_Travel_Bug_Dog_Tag.jpg" />
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-1">
+                                <p class="text-center text-xs">Um Travel Bug com sua tag de rastreamento</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center"> <i
+                        class="fas fa-route text-blue-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">Viajando pelo mundo!</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide9" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Atividade prática: Buscando Caches</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4 flex flex-col">
+                        <div class="content-box p-4 mb-3">
+                            <h3 class="text-xl font-semibold mb-2" style="color: #4CAF50;">Orientações para a saída
+                                prática</h3>
+                            <p class="text-base mb-2"> Planeje uma saída em grupo para buscar <span
+                                    class="highlight-text">pelo menos 3 caches diferentes</span>, incluindo 1 cache
+                                tradicional. </p>
+                            <p class="text-base"> Cada participante deve registrar a experiência no logbook do cache e
+                                no diário de bordo pessoal. </p>
+                            <div class="flex items-center mt-2">
+                                <div class="icon-circle mr-3"
+                                    style="background-color: #f3d02e; width: 40px; height: 40px;"> <i
+                                        class="fas fa-exclamation-triangle"></i> </div>
+                                <p class="text-sm"> Lembre-se: siga sempre as regras de etiqueta e segurança do
+                                    Geocaching! </p>
+                            </div>
+                        </div>
+                        <div class="content-box p-4">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #2d74b9;"> <i
+                                    class="fas fa-clipboard-check mr-2"></i>Checklist de preparação </h3>
+                            <div class="flex items-center mb-2 checklist-item !py-1 !px-2">
+                                <div class="checkbox mr-3"><i class="fas fa-check text-green-600"></i></div>
+                                <p class="text-sm">Dispositivo GPS ou smartphone com aplicativo</p>
+                            </div>
+                            <div class="flex items-center mb-2 checklist-item !py-1 !px-2">
+                                <div class="checkbox mr-3"><i class="fas fa-check text-green-600"></i></div>
+                                <p class="text-sm">Lista de caches impressa ou no app</p>
+                            </div>
+                            <div class="flex items-center mb-2 checklist-item !py-1 !px-2">
+                                <div class="checkbox mr-3"><i class="fas fa-check text-green-600"></i></div>
+                                <p class="text-sm">Caneta para assinar logbooks</p>
+                            </div>
+                            <div class="flex items-center mb-2 checklist-item !py-1 !px-2">
+                                <div class="checkbox mr-3"><i class="fas fa-check text-green-600"></i></div>
+                                <p class="text-sm">Pequenos itens para troca (opcional)</p>
+                            </div>
+                            <div class="flex items-center checklist-item !py-1 !px-2">
+                                <div class="checkbox mr-3"><i class="fas fa-check text-green-600"></i></div>
+                                <p class="text-sm">Água, protetor solar e itens de segurança</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col">
+                        <div class="map-container mb-3" id="map" style="height: 240px;"></div>
+                        <div class="content-box p-4 flex-grow">
+                            <h3 class="font-semibold text-xl mb-2" style="color: #4CAF50;">Meta: 3 caches</h3>
+                            <p class="text-sm mb-2"> Durante a atividade prática, você deve encontrar pelo menos três
+                                geocaches diferentes: </p>
+                            <div class="flex items-start mb-2 checklist-item traditional !py-1 !px-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">1</span></div>
+                                <div>
+                                    <p class="font-semibold text-sm">Cache Tradicional (obrigatório)</p>
+                                    <p class="text-xs text-gray-600">Encontre o recipiente no local exato</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start mb-2 checklist-item !py-1 !px-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">2</span></div>
+                                <div>
+                                    <p class="font-semibold text-sm">Segundo cache (sua escolha)</p>
+                                    <p class="text-xs text-gray-600">Pode ser micro, multi ou outro tipo</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start checklist-item !py-1 !px-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">3</span></div>
+                                <div>
+                                    <p class="font-semibold text-sm">Terceiro cache (sua escolha)</p>
+                                    <p class="text-xs text-gray-600">Experimente um tipo diferente</p>
+                                </div>
+                            </div>
+                            <div class="mt-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <p class="text-center text-sm"> <i class="fas fa-star text-yellow-500 mr-1"></i> <span
+                                        class="font-semibold">Desafio extra:</span> Encontre e mova um Travel Bug! </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center"> <i
+                        class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">N 45° 17.460 W 122° 24.800</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide10" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Relato no diário de bordo</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-6 h-full">
+                    <div class="w-1/2 pr-4 flex flex-col">
+                        <div class="content-box p-3 mb-2">
+                            <p class="text-base mb-1"> <span class="highlight-text text-lg">Logbook</span> é o registro
+                                oficial de visita a um cache. É um pequeno livro ou papel onde os visitantes registram
+                                sua descoberta.</p>
+                            <p class="text-sm mb-1">Registrar sua visita é essencial e mostra respeito pelo criador.</p>
+                            <p class="text-sm">Após o registro físico, registre também online no site ou app.</p>
+                        </div>
+                        <div class="content-box p-2 mb-2">
+                            <h3 class="font-semibold text-lg mb-1" style="color: #4CAF50;">Campos essenciais do
+                                registro:</h3>
+                            <div class="field-box p-1 mb-1">
+                                <p class="font-semibold text-sm">Data e Hora: <span class="font-normal">Dia e horário da
+                                        descoberta</span></p>
+                            </div>
+                            <div class="field-box p-1 mb-1">
+                                <p class="font-semibold text-sm">Nome ou Nick: <span class="font-normal">Seu nome de
+                                        usuário no Geocaching</span></p>
+                            </div>
+                            <div class="field-box p-1 mb-1">
+                                <p class="font-semibold text-sm">Mensagem: <span class="font-normal">Breve relato da
+                                        experiência</span></p>
+                            </div>
+                            <div class="field-box p-1">
+                                <p class="font-semibold text-sm">Trade (se aplicável): <span class="font-normal">O que
+                                        pegou e o que deixou</span></p>
+                            </div>
+                        </div>
+                        <div class="content-box p-2 mt-auto">
+                            <h3 class="font-semibold text-lg mb-1" style="color: #2d74b9;">Importância do registro:</h3>
+                            <div class="flex items-start mb-1"> <i
+                                    class="fas fa-check-circle text-yellow-500 mr-2 mt-1"></i>
+                                <p class="text-sm">Indica ao dono que o cache está ativo</p>
+                            </div>
+                            <div class="flex items-start mb-1"> <i
+                                    class="fas fa-check-circle text-yellow-500 mr-2 mt-1"></i>
+                                <p class="text-sm">Ajuda outros geocachers com dicas</p>
+                            </div>
+                            <div class="flex items-start"> <i class="fas fa-check-circle text-yellow-500 mr-2 mt-1"></i>
+                                <p class="text-sm">Cria um histórico da sua jornada</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-4 flex flex-col">
+                        <div class="image-container mb-3 flex-grow">
+                            <img alt="Exemplo de logbook" class="w-full h-full object-cover"
+                                src="https://page.gensparksite.com/slides_images/56830cd49ce81f73fe0192619f631c17.jpg" />
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-1">
+                                <p class="text-center text-xs">Exemplo de um logbook real</p>
+                            </div>
+                        </div>
+                        <div class="content-box p-3">
+                            <h3 class="font-semibold text-lg mb-1" style="color: #2d74b9;">Exemplo de registro:</h3>
+                            <div class="bg-gray-100 p-2 rounded-md border-l-4 border-yellow-500">
+                                <p class="text-sm italic"> "21/10/2025 - Equipe Desbravadores<br /> TFTC! Local
+                                    incrível! Deixamos um pin e pegamos o chaveiro." </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 left-6 flex items-center">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                    <p class="text-sm text-gray-600">Dica: Use uma caneta à prova d'água!</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="slide11" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Reflexão: Tesouros Terrestres x Espirituais</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-8 h-full">
+                    <div class="w-1/2 pr-6">
+                        <div class="content-box p-4 mb-3">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Passagens Bíblicas</h3>
+                            <div class="verse-box">
+                                <p class="text-base mb-1"><span class="highlight-text">Mateus 6:19-21</span></p>
+                                <p class="text-sm">"Não acumuleis para vós tesouros na terra... mas acumulai para vós
+                                    tesouros no céu... Porque onde estiver o vosso tesouro, aí estará também o vosso
+                                    coração."</p>
+                            </div>
+                            <div class="verse-box">
+                                <p class="text-base mb-1"><span class="highlight-text">Jeremias 29:13</span></p>
+                                <p class="text-sm">"Buscar-me-eis, e me achareis, quando me buscardes com todo o vosso
+                                    coração."</p>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-base">Assim como buscamos caches com dedicação, devemos buscar a Deus com
+                                    todo o nosso coração.</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-4">
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3"><i class="fas fa-pray fa-lg"></i></div>
+                                <p class="text-md">Busca com propósito eterno</p>
+                            </div>
+                            <div class="content-box flex-1 p-3 flex items-center">
+                                <div class="icon-circle mr-3" style="background-color: #2d74b9;"><i
+                                        class="fas fa-heart fa-lg"></i></div>
+                                <p class="text-md">Encontro com valor verdadeiro</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-6 flex flex-col">
+                        <div class="content-box p-4 mb-3">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Geocaching x Busca Espiritual
+                            </h3>
+                            <div class="comparison-box earth-treasure mb-3 p-3">
+                                <div class="flex items-start">
+                                    <div class="mr-3 mt-1"><i class="fas fa-box-open fa-2x"></i></div>
+                                    <div>
+                                        <p class="font-semibold mb-1">Tesouro Terrestre</p>
+                                        <p class="text-sm">• Busca por recipientes físicos</p>
+                                        <p class="text-sm">• Guiado por coordenadas GPS</p>
+                                        <p class="text-sm">• Satisfação temporária</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comparison-box heaven-treasure p-3">
+                                <div class="flex items-start">
+                                    <div class="mr-3 mt-1"><i class="fas fa-crown fa-2x"></i></div>
+                                    <div>
+                                        <p class="font-semibold mb-1">Tesouro Celestial</p>
+                                        <p class="text-sm">• Busca por valores eternos</p>
+                                        <p class="text-sm">• Guiado pela fé e pela Palavra</p>
+                                        <p class="text-sm">• Satisfação duradoura</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-box p-4">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Aplicação prática:</h3>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">1</span></div>
+                                <p>Busque a Deus com empolgação</p>
+                            </div>
+                            <div class="flex items-start mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">2</span></div>
+                                <p>Dedique tempo ao que é eterno</p>
+                            </div>
+                            <div class="flex items-start">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <span class="font-bold text-white">3</span></div>
+                                <p>Registre suas descobertas espirituais</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center"> <i
+                        class="fas fa-bible text-blue-800 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">Buscai e encontrareis</p>
+                </div>
+            </div>
+        </div>
+        <div id="slide12" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Segurança no Geocaching</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-8 h-full">
+                    <div class="w-1/2 pr-6">
+                        <div class="content-box p-5 mb-3">
+                            <p class="text-base mb-2"><span class="highlight-text text-xl">Segurança sempre em primeiro
+                                    lugar!</span> Geocaching é divertido, mas requer cuidados importantes.</p>
+                            <p class="text-base mb-2">A segurança do grupo é mais importante que encontrar qualquer
+                                cache. Se houver risco, abandone a busca e tente outro dia.</p>
+                            <p class="text-base">Antes de sair, verifique o clima e prepare-se para o ambiente que irá
+                                visitar.</p>
+                        </div>
+                        <div class="content-box flex-1 p-3 mb-3 flex items-center">
+                            <div class="icon-circle mr-3" style="background-color: #2d74b9;"><i
+                                    class="fas fa-exclamation-triangle fa-lg"></i></div>
+                            <div>
+                                <p class="text-md">Nunca entre em propriedade privada sem autorização</p>
+                            </div>
+                        </div>
+                        <div class="content-box p-4">
+                            <h3 class="font-semibold text-lg mb-2" style="color: #4CAF50;">Itens essenciais:</h3>
+                            <div class="flex flex-wrap">
+                                <div class="w-1/2 flex items-center mb-2"><i class="fas fa-tint text-blue-500 mr-2"></i>
+                                    <p>Água suficiente</p>
+                                </div>
+                                <div class="w-1/2 flex items-center mb-2"><i
+                                        class="fas fa-briefcase-medical text-red-600 mr-2"></i>
+                                    <p>Kit de primeiros socorros</p>
+                                </div>
+                                <div class="w-1/2 flex items-center mb-2"><i
+                                        class="fas fa-mobile-alt text-gray-700 mr-2"></i>
+                                    <p>Telefone carregado</p>
+                                </div>
+                                <div class="w-1/2 flex items-center mb-2"><i
+                                        class="fas fa-map-marked-alt text-yellow-600 mr-2"></i>
+                                    <p>Mapa da região</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-6">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="content-box p-3 safety-item">
+                                <div class="safety-icon" style="width: 50px; height: 50px;"><i
+                                        class="fas fa-users fa-2x"></i></div>
+                                <h4 class="text-center font-semibold mb-1">Nunca vá sozinho</h4>
+                                <p class="text-center text-sm">Pratique em grupo ou em dupla</p>
+                            </div>
+                            <div class="content-box p-3 safety-item">
+                                <div class="safety-icon" style="background-color: #3498db; width: 50px; height: 50px;">
+                                    <i class="fas fa-info-circle fa-2x"></i></div>
+                                <h4 class="text-center font-semibold mb-1">Avise um adulto</h4>
+                                <p class="text-center text-sm">Informe sua localização e retorno</p>
+                            </div>
+                            <div class="content-box p-3 safety-item">
+                                <div class="safety-icon" style="background-color: #f39c12; width: 50px; height: 50px;">
+                                    <i class="fas fa-car fa-2x"></i></div>
+                                <h4 class="text-center font-semibold mb-1">Cuidado no trânsito</h4>
+                                <p class="text-center text-sm">Atenção ao atravessar ruas e estradas</p>
+                            </div>
+                            <div class="content-box p-3 safety-item">
+                                <div class="safety-icon" style="background-color: #8e44ad; width: 50px; height: 50px;">
+                                    <i class="fas fa-paw fa-2x"></i></div>
+                                <h4 class="text-center font-semibold mb-1">Animais selvagens</h4>
+                                <p class="text-center text-sm">Respeite a fauna e mantenha distância</p>
+                            </div>
+                            <div class="content-box p-3 safety-item col-span-2">
+                                <div class="safety-icon" style="background-color: #4CAF50; width: 50px; height: 50px;">
+                                    <i class="fas fa-mountain fa-2x"></i></div>
+                                <h4 class="text-center font-semibold mb-1">Observe o terreno</h4>
+                                <p class="text-center text-sm">Fique atento a buracos, declives e rochas soltas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 left-6 flex items-center"> <i
+                        class="fas fa-shield-alt text-blue-600 mr-2"></i>
+                    <p class="text-sm font-semibold">Diversão com responsabilidade: sua segurança é o tesouro mais
+                        valioso!</p>
+                </div>
+            </div>
+        </div>
+        <div id="slide13" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Resumo e próximos passos</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex p-8 h-full">
+                    <div class="w-1/2 pr-6">
+                        <div class="content-box p-5 mb-3">
+                            <h3 class="text-xl font-bold mb-2" style="color: #4CAF50;">O que aprendemos</h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start"><i
+                                        class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                    <p class="text-base">O que é <span class="highlight-text">Geocaching</span> e como
+                                        funciona</p>
+                                </li>
+                                <li class="flex items-start"><i
+                                        class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                    <p class="text-base">Como usar <span class="highlight-text">GPS</span> e coordenadas
+                                    </p>
+                                </li>
+                                <li class="flex items-start"><i
+                                        class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                    <p class="text-base">Tipos diferentes de caches e suas características</p>
+                                </li>
+                                <li class="flex items-start"><i
+                                        class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                    <p class="text-base">Regras de etiqueta e segurança para uma experiência positiva
+                                    </p>
+                                </li>
+                                <li class="flex items-start"><i
+                                        class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                                    <p class="text-base">Conexões entre Geocaching e princípios espirituais</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="content-box p-5">
+                            <h3 class="text-xl font-bold mb-3" style="color: #2d74b9;">Motivação para explorar</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="icon-circle mr-4" style="background-color: #f3d02e;"><i
+                                        class="fas fa-star fa-lg"></i></div>
+                                <p class="text-md">"A verdadeira aventura começa ao sair da sua zona de conforto"</p>
+                            </div>
+                            <div class="bg-blue-100 border-l-4 border-blue-500 p-3 rounded">
+                                <p class="italic text-sm">"Busquemos conhecer a Deus e Suas maravilhas na natureza."</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-6">
+                        <h3 class="text-xl font-bold mb-3" style="color: #2d74b9;">Próximos passos para começar</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="content-box p-3 step-card">
+                                <div class="flex items-center mb-1">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2">
+                                        <span class="font-bold text-white">1</span></div>
+                                    <p class="font-semibold">Criar uma conta</p>
+                                </div>
+                                <p class="text-sm">Registre-se no site ou baixe o aplicativo oficial Geocaching</p>
+                            </div>
+                            <div class="content-box p-3 step-card">
+                                <div class="flex items-center mb-1">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2">
+                                        <span class="font-bold text-white">2</span></div>
+                                    <p class="font-semibold">Estudar o mapa</p>
+                                </div>
+                                <p class="text-sm">Busque caches próximos - comece pelos mais fáceis!</p>
+                            </div>
+                            <div class="content-box p-3 step-card">
+                                <div class="flex items-center mb-1">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2">
+                                        <span class="font-bold text-white">3</span></div>
+                                    <p class="font-semibold">Preparar equipamento</p>
+                                </div>
+                                <p class="text-sm">GPS/app, lápis, água, e kit de primeiros socorros</p>
+                            </div>
+                            <div class="content-box p-3 step-card">
+                                <div class="flex items-center mb-1">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2">
+                                        <span class="font-bold text-white">4</span></div>
+                                    <p class="font-semibold">Começar a busca</p>
+                                </div>
+                                <p class="text-sm">Faça sua primeira aventura com amigos ou familiares</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 content-box p-4 bg-green-50 border-green-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="icon-circle mr-4" style="background-color: #2d74b9;"><i
+                                            class="fas fa-compass fa-lg"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-lg">Pronto para a aventura?</h4>
+                                        <p>A comunidade Geocaching espera por você!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+                <div class="absolute bottom-4 right-6 flex items-center"> <i
+                        class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                    <p class="text-sm font-mono text-gray-600">N 45° 17.460 W 122° 24.800</p>
+                </div>
+            </div>
+        </div>
+        <div id="slide14" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Encerramento &amp; Contatos</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="flex flex-col items-center justify-center p-8 relative" style="height: calc(100% - 72px);">
+                    <div class="map-background">
+                        <div
+                            style='width: 100%; height: 100%; background-image: url("https://page.gensparksite.com/slides_images/46c30c9d89bd7a4f1bfcd6d35fb2fea4.png");'>
+                        </div>
+                    </div>
+                    <div class="achievement-badge mb-4"><i class="fas fa-trophy fa-3x"></i></div>
+                    <div class="text-center mb-6 z-10">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Parabéns, Explorador!</h2>
+                        <p class="text-lg text-gray-700 max-w-2xl">Você completou sua jornada no mundo do Geocaching!
+                            Lembre-se: a verdadeira aventura está lá fora. Explore com responsabilidade e compartilhe
+                            suas descobertas!</p>
+                    </div>
+                    <div class="flex justify-center space-x-8 w-1/2 z-10">
+                        <div class="contact-card flex items-center p-3">
+                            <div class="contact-icon mr-3"
+                                style="background-color: #4CAF50; width: 40px; height: 40px;"><i
+                                    class="fas fa-globe"></i></div>
+                            <div>
+                                <h3 class="font-bold text-gray-700 text-base mb-0">Site Oficial</h3>
+                                <p class="text-gray-600 text-sm">www.desbravadores.org</p>
+                            </div>
+                        </div>
+                        <div class="contact-card flex items-center p-3">
+                            <div class="contact-icon mr-3"
+                                style="background-color: #C13584; width: 40px; height: 40px;"><i
+                                    class="fab fa-instagram"></i></div>
+                            <div>
+                                <h3 class="font-bold text-gray-700 text-base mb-0">Instagram</h3>
+                                <p class="text-gray-600 text-sm">@desbravadores</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-10 z-10">
+                        <p class="text-lg font-semibold text-green-700"><i class="fas fa-map-marker-alt mr-2"></i>Bons
+                            achados e aventuras seguras!</p>
+                    </div>
+                    <div class="compass-decoration"><i class="fas fa-compass fa-4x text-gray-500"></i></div>
+                    <div class="absolute bottom-4 left-6 flex items-center"> <i
+                            class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                        <p class="text-sm font-mono text-gray-600">N 45° 17.460 W 122° 24.800</p>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+            </div>
+        </div>
+
+        <div id="slide15" class="slide">
+            <div class="slide-container">
+                <div class="title-bar">
+                    <h1 class="title text-3xl font-bold">Como Começa o Momento Prático da Busca?</h1>
+                    <div class="title-decoration"></div>
+                </div>
+                <div class="p-6 h-[calc(100%-90px)]">
+                    <h2 class="text-center text-2xl font-bold highlight-text mb-4">Passo a Passo Didático para Iniciar a
+                        Busca</h2>
+                    <div class="flex space-x-6 h-full">
+                        <div class="w-1/2 flex flex-col space-y-3">
+                            <div class="content-box p-3">
+                                <h3 class="font-bold text-lg mb-2 flex items-center" style="color: #4CAF50;"><i
+                                        class="fas fa-users mr-3"></i>Divisão em Equipes</h3>
+                                <ul class="list-disc ml-6 text-sm space-y-1">
+                                    <li>Forme grupos (4-6 pessoas por celular disponível).</li>
+                                    <li>Entregue fichas de coordenadas e explique a ordem dos pontos.</li>
+                                </ul>
+                            </div>
+                            <div class="content-box p-3">
+                                <h3 class="font-bold text-lg mb-2 flex items-center" style="color: #4CAF50;"><i
+                                        class="fas fa-clipboard-check mr-3"></i>Orientações Finais</h3>
+                                <ul class="list-disc ml-6 text-sm space-y-1">
+                                    <li>Relembre as regras de segurança e a importância da cooperação.</li>
+                                    <li>Mostre como usar o app (Google Maps/GPS Status) e digitar as coordenadas.</li>
+                                </ul>
+                            </div>
+                            <div class="content-box p-3">
+                                <h3 class="font-bold text-lg mb-2 flex items-center" style="color: #4CAF50;"><i
+                                        class="fas fa-flag-checkered mr-3"></i>Ponto de Partida & Início</h3>
+                                <ul class="list-disc ml-6 text-sm space-y-1">
+                                    <li>Todos os grupos se posicionam na área inicial designada.</li>
+                                    <li>Distribua cada equipe para um ponto de início diferente para evitar aglomeração.
+                                    </li>
+                                    <li>Dê um comando sonoro único para começar (“Apito! Valendo!”).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="w-1/2 flex flex-col space-y-3">
+                            <div class="content-box p-3">
+                                <h3 class="font-bold text-lg mb-2 flex items-center" style="color: #2d74b9;"><i
+                                        class="fas fa-map-signs mr-3"></i>Receber e Seguir as Coordenadas</h3>
+                                <ul class="list-disc ml-6 text-sm space-y-1">
+                                    <li>Cada equipe recebe a primeira coordenada e a digita no app.</li>
+                                    <li>Comecem a seguir a indicação do mapa/compasso, caminhando juntos.</li>
+                                </ul>
+                            </div>
+                            <div class="content-box p-3 flex-grow">
+                                <h3 class="font-bold text-lg mb-2 flex items-center" style="color: #2d74b9;"><i
+                                        class="fas fa-search-location mr-3"></i>Durante a Busca</h3>
+                                <ul class="list-disc ml-6 text-sm space-y-1">
+                                    <li>Ao se aproximar (GPS indica poucos metros), “pense como quem escondeu”.</li>
+                                    <li>Procure em esconderijos lógicos: tocos, arbustos, placas, etc.</li>
+                                    <li>Ao encontrar: assine o logbook, responda ao desafio (se houver) e tire uma foto
+                                        do grupo.</li>
+                                    <li>Se retirar um item de troca, deixe outro de valor igual ou superior.</li>
+                                </ul>
+                            </div>
+                            <div class="content-box p-3">
+                                <h3 class="font-bold text-lg mb-2 flex items-center" style="color: #2d74b9;"><i
+                                        class="fas fa-shoe-prints mr-3"></i>Finalização</h3>
+                                <ul class="list-disc ml-6 text-sm space-y-1">
+                                    <li>Vá para a próxima coordenada ou, ao final da rota, retorne ao ponto de encontro.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-decoration"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <button class="nav-button prev"><i class="fas fa-chevron-left"></i></button>
+    <button class="nav-button next"><i class="fas fa-chevron-right"></i></button>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevButton = document.querySelector('.prev');
+        const nextButton = document.querySelector('.next');
+        let currentSlide = 0;
+        let map;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+
+            prevButton.style.display = index === 0 ? 'none' : 'flex';
+            nextButton.style.display = index === slides.length - 1 ? 'none' : 'flex';
+
+            if (slides[index].id === 'slide9' && !map) {
+                initializeMap();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        function scaleActiveSlide() {
+            const container = document.querySelector('.presentation-container');
+            if (!container) return;
+
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const slideWidth = 1280;
+            const slideHeight = 720;
+
+            const scale = Math.min(containerWidth / slideWidth, containerHeight / slideHeight);
+
+            const activeSlide = document.querySelector('.slide.active');
+            if (activeSlide) {
+                activeSlide.style.transform = `scale(${scale})`;
+            }
+        }
+
+        function initializeMap() {
+            setTimeout(() => {
+                if (document.getElementById('map') && !map) { // Verifique se o mapa não foi inicializado
+                    map = L.map('map').setView([-22.9519, -46.5423], 12);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    var traditionalIcon = L.divIcon({ html: '<i class="fas fa-box text-blue-600" style="font-size: 18px;"></i>', className: 'custom-div-icon', iconSize: [30, 30], iconAnchor: [15, 15] });
+                    var microIcon = L.divIcon({ html: '<i class="fas fa-vial text-green-600" style="font-size: 16px;"></i>', className: 'custom-div-icon', iconSize: [30, 30], iconAnchor: [15, 15] });
+                    var mysteryIcon = L.divIcon({ html: '<i class="fas fa-question-circle text-purple-600" style="font-size: 18px;"></i>', className: 'custom-div-icon', iconSize: [30, 30], iconAnchor: [15, 15] });
+
+                    L.marker([-22.9519, -46.5423], { icon: traditionalIcon }).addTo(map).bindPopup("Cache Tradicional<br>GC12345");
+                    L.marker([-22.9619, -46.5523], { icon: microIcon }).addTo(map).bindPopup("Micro Cache<br>GC67890");
+                    L.marker([-22.9389, -46.5353], { icon: mysteryIcon }).addTo(map).bindPopup("Cache Mistério<br>GC54321");
+
+                    L.circle([-22.9519, -46.5423], { color: 'rgba(76, 175, 80, 0.5)', fillColor: 'rgba(76, 175, 80, 0.1)', fillOpacity: 0.5, radius: 2000 }).addTo(map).bindPopup("Área de busca sugerida");
+                }
+            }, 100);
+        }
+
+        function handleNavigation(direction) {
+            if (direction === 'next') {
+                nextSlide();
+            } else {
+                prevSlide();
+            }
+            requestAnimationFrame(scaleActiveSlide);
+        }
+
+        nextButton.addEventListener('click', () => handleNavigation('next'));
+        prevButton.addEventListener('click', () => handleNavigation('prev'));
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                handleNavigation('next');
+            } else if (e.key === 'ArrowLeft') {
+                handleNavigation('prev');
+            }
+        });
+
+        window.addEventListener('resize', scaleActiveSlide);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showSlide(currentSlide);
+            scaleActiveSlide();
+        });
+
+    </script>
+</body>
+
+</html>
